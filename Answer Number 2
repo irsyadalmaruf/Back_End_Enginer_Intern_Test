@@ -1,0 +1,32 @@
+db.Psikolog.aggregate([
+  {
+    $lookup: {
+      from: "Review",
+      localField: "_id",
+      foreignField: "psikolog_id",
+      as: "reviews"
+    }
+  },
+  {
+    $unwind: "$reviews"
+  },
+  {
+    $group: {
+      _id: "$_id",
+      name: { $first: "$name" },
+      reviews: { $push: "$reviews" },
+      averageRating: { $avg: "$reviews.rating" }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      name: 1,
+      reviews: {
+        _id: 0,
+        psikolog_id: 0
+      },
+      averageRating: 1
+    }
+  }
+])
